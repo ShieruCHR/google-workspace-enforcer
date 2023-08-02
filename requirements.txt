@@ -1,0 +1,5 @@
+FastAPI
+discord.py
+uvicorn
+python-dotenv
+requests

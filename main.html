@@ -1,0 +1,376 @@
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>認証 | Google Workspace Enforcer</title>
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+        integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9"
+        crossorigin="anonymous" />
+
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
+
+    <script>
+        /*!
+         * Color mode toggler for Bootstrap's docs (https://getbootstrap.com/)
+         * Copyright 2011-2023 The Bootstrap Authors
+         * Licensed under the Creative Commons Attribution 3.0 Unported License.
+         */
+
+        (() => {
+            "use strict";
+
+            const getStoredTheme = () => localStorage.getItem("theme");
+            const setStoredTheme = (theme) =>
+                localStorage.setItem("theme", theme);
+
+            const getPreferredTheme = () => {
+                const storedTheme = getStoredTheme();
+                if (storedTheme) {
+                    return storedTheme;
+                }
+
+                return window.matchMedia("(prefers-color-scheme: dark)").matches
+                    ? "dark"
+                    : "light";
+            };
+
+            const setTheme = (theme) => {
+                if (
+                    theme === "auto" &&
+                    window.matchMedia("(prefers-color-scheme: dark)").matches
+                ) {
+                    document.documentElement.setAttribute(
+                        "data-bs-theme",
+                        "dark"
+                    );
+                } else {
+                    document.documentElement.setAttribute(
+                        "data-bs-theme",
+                        theme
+                    );
+                }
+            };
+
+            setTheme(getPreferredTheme());
+
+            const showActiveTheme = (theme, focus = false) => {
+                const themeSwitcher = document.querySelector("#bd-theme");
+
+                if (!themeSwitcher) {
+                    return;
+                }
+
+                const themeSwitcherText =
+                    document.querySelector("#bd-theme-text");
+                const activeThemeIcon = document.querySelector(
+                    ".theme-icon-active use"
+                );
+                const btnToActive = document.querySelector(
+                    `[data-bs-theme-value="${theme}"]`
+                );
+                document
+                    .querySelectorAll("[data-bs-theme-value]")
+                    .forEach((element) => {
+                        element.classList.remove("active");
+                        element.setAttribute("aria-pressed", "false");
+                    });
+
+                btnToActive.classList.add("active");
+                btnToActive.setAttribute("aria-pressed", "true");
+                const themeSwitcherLabel = `${themeSwitcherText.textContent} (${btnToActive.dataset.bsThemeValue})`;
+                themeSwitcher.setAttribute("aria-label", themeSwitcherLabel);
+
+                if (focus) {
+                    themeSwitcher.focus();
+                }
+            };
+
+            window
+                .matchMedia("(prefers-color-scheme: dark)")
+                .addEventListener("change", () => {
+                    const storedTheme = getStoredTheme();
+                    if (storedTheme !== "light" && storedTheme !== "dark") {
+                        setTheme(getPreferredTheme());
+                    }
+                });
+
+            window.addEventListener("DOMContentLoaded", () => {
+                showActiveTheme(getPreferredTheme());
+
+                document
+                    .querySelectorAll("[data-bs-theme-value]")
+                    .forEach((toggle) => {
+                        toggle.addEventListener("click", () => {
+                            const theme = toggle.getAttribute(
+                                "data-bs-theme-value"
+                            );
+                            setStoredTheme(theme);
+                            setTheme(theme);
+                            showActiveTheme(theme, true);
+                        });
+                    });
+            });
+        })();
+    </script>
+</head>
+
+<body class="m-2">
+    <nav class="navbar bg-body-tertiary">
+        <div class="container-fluid">
+            <span class="navbar-brand mb-0 h1">Google Workspace Enforcer</span>
+            <div class="d-flex">
+                <div class="dropstart">
+                    <button
+                        class="btn btn-outline-info dropdown-toggle"
+                        type="button"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                        id="bd-theme">
+                        <i class="bi bi-palette"></i>
+                    </button>
+                    <ul class="dropdown-menu" id="bd-theme-text">
+                        <li>
+                            <button
+                                type="button"
+                                class="dropdown-item"
+                                data-bs-theme-value="light">
+                                <i class="bi bi-brightness-high"></i>
+                                ライトテーマ
+                            </button>
+                        </li>
+                        <li>
+                            <button
+                                type="button"
+                                class="dropdown-item"
+                                data-bs-theme-value="dark">
+                                <i class="bi bi-moon"></i>
+                                ダークテーマ
+                            </button>
+                        </li>
+                        <li>
+                            <button
+                                type="button"
+                                class="dropdown-item"
+                                data-bs-theme-value="auto">
+                                <i class="bi bi-circle-half"></i>
+                                自動で選択
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <hr />
+    <div id="loading-screen">
+        <p id="loading-text">Now loading ...</p>
+    </div>
+    <div id="main" hidden class="mx-2">
+        <p>
+            このサーバーは、Google Workspace Enforcerによって保護されています。
+            <br />
+            DiscordアカウントとGoogle Workspaceアカウントを紐づけて、
+            <b><span id="guild-name"></span></b>
+            に参加しましょう！
+        </p>
+        <p hidden id="domain">
+            管理者は、Google Workspaceの認証組織を
+            <b><span id="domain-text" class="bold"></span></b>
+            に制限しています。
+        </p>
+        <div class="d-flex flex-wrap">
+            <div class="card mx-2" style="width: 30rem">
+                <div class="card-body">
+                    <h5 class="card-title">Discord</h5>
+                    <p
+                        class="card-subtitle text-muted"
+                        id="discord-auth"
+                        hidden>
+                        現在、
+                        <span id="discord-auth-name"></span>
+                        としてログイン中です。
+                    </p>
+                    <div class="text-success" id="discord-auth-success" hidden>
+                        アカウントを認証しました。
+                    </div>
+                    <a
+                        class="btn btn-primary my-1"
+                        role="button"
+                        id="discord-auth-button">
+                        <i class="bi bi-discord"></i>
+                        Discordを認証する
+                    </a>
+                </div>
+            </div>
+            <div class="card mx-2" style="width: 30rem">
+                <div class="card-body">
+                    <h5 class="card-title">Google</h5>
+                    <p class="card-subtitle text-muted" id="google-auth" hidden>
+                        現在、
+                        <span id="google-auth-name"></span>
+                        としてログイン中です。
+                    </p>
+                    <div id="google-auth-mismatch" hidden></div>
+                    <a
+                        class="btn btn-primary my-1"
+                        role="button"
+                        id="google-auth-button">
+                        <i class="bi bi-google"></i>
+                        Googleを認証する
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <hr />
+        <a class="btn btn-outline-success" role="button" id="validation-button">
+            認証を完了させる
+        </a>
+    </div>
+
+    <script>
+        var currentURL = window.location.href;
+        var state = currentURL.split("/").pop();
+
+        function setText(elementId, innerText) {
+            let element = document.getElementById(elementId);
+            element.innerText = innerText;
+        }
+
+        function setHidden(elementId, hidden) {
+            let element = document.getElementById(elementId);
+            element.hidden = hidden;
+        }
+
+        function setDisabled(elementId) {
+            document.getElementById(elementId).classList.add("disabled");
+        }
+
+        function setHref(elementId, newHref) {
+            document.getElementById(elementId).href = newHref;
+        }
+
+        function setColor(elementId, classGroup, color) {
+            document
+                .getElementById(elementId)
+                .classList.add(`${classGroup}-${color}`);
+        }
+
+        function handleData(data) {
+            let discord = data["discord"] || undefined;
+            let google = data["google"] || undefined;
+            let passed = 0;
+
+            if (data["guild_name"]) {
+                setText("guild-name", data["guild_name"]);
+            }
+
+            if (data["domain"]) {
+                setHidden("domain", false);
+                setText("domain-text", data["domain"].join(", "));
+            }
+
+            setHref("discord-auth-button", "/discord/auth?state=" + state);
+            setHref("google-auth-button", "/google/auth?state=" + state);
+            setHref("validation-button", "/validate?state=" + state);
+
+            // Discord
+            if (discord) {
+                // Discord authorization is completed
+                setHidden("discord-auth", false);
+                setText(
+                    "discord-auth-name",
+                    `${discord["username"]} (${discord["global_name"]})`
+                );
+                setDisabled("discord-auth-button");
+                setHidden("discord-auth-success", false);
+                passed++;
+            } else {
+                // Discord authorization is not completed
+                setHidden("discord-auth-success", true);
+            }
+
+            // Google
+            if (google) {
+                // Google authorization is completed (Domain validation is not completed yet.)
+                setHidden("google-auth", false);
+                setText("google-auth-name", google["email"]);
+
+                // Domain validation
+                let validation_completed = undefined;
+                function _validationPassed() {
+                    setText(
+                        "google-auth-mismatch",
+                        "このワークスペースは利用可能です。"
+                    );
+                    setColor("google-auth-mismatch", "text", "success");
+                    validation_completed = true;
+                }
+                if (data["domain"]) {
+                    if (data["domain"].includes(google["organization"])) {
+                        // Passed domain validation
+                        _validationPassed();
+                    } else {
+                        // Failed domain validation
+                        setText(
+                            "google-auth-mismatch",
+                            "このワークスペースは利用できません。別のアカウントで再度ログインしてください。"
+                        );
+                        setColor("google-auth-mismatch", "text", "danger");
+                        validation_completed = false;
+                    }
+                    setHidden("google-auth-mismatch", false);
+                } else {
+                    // Domain validation is not needed
+                    _validationPassed();
+                }
+
+                if (validation_completed) {
+                    setDisabled("google-auth-button");
+                    passed++;
+                }
+            } else {
+                // Google authorization is not completed
+                setHidden("google-auth-mismatch", true);
+            }
+
+            console.log(passed);
+            // Validate button
+            if (passed < 2) {
+                setDisabled("validation-button");
+            }
+        }
+
+        function handleError() {
+            setText(
+                "loading-text",
+                "読み込みに失敗しました。再度認証を開始してください。"
+            );
+            setColor("loading-text", "text", "danger");
+        }
+
+        function fetchData() {
+            fetch("/session/" + state)
+                .then(async (response) => {
+                    const data = await response.json();
+                    console.log(data);
+                    handleData(data);
+
+                    setHidden("loading-screen", true);
+                    setHidden("main", false);
+                })
+                .catch(() => {
+                    handleError();
+                });
+        }
+
+        fetchData();
+    </script>
+    <script
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
+        crossorigin="anonymous"></script>
+</body>
