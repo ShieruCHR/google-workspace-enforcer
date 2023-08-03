@@ -3,3 +3,5 @@ discord.py
 uvicorn
 python-dotenv
 requests
+sqlmodel
+alembic
