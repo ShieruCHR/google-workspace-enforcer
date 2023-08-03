@@ -135,4 +135,4 @@ class PublicBotCog(commands.Cog):
 
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(PublicBotCog(bot))
-    print("PublicBotCog loaded")
+    print("Public bot extension has been loaded.")
