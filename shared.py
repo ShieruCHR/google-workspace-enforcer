@@ -30,14 +30,17 @@ async def start_verification(interaction: discord.Interaction):
         "domain": settings.allowed_domains,
     }
     url = os.getenv("HOST") + "/" + state
+    message_prefix = (
+        "認証を開始します！以下のURLにアクセスして、あなたがGoogle Workspaceのアカウントに関連付けられている人物かを認証してください。"
+    )
     if settings.allowed_domains:
         await interaction.response.send_message(
-            f"認証を開始します！以下のURLにアクセスして、あなたがGoogle Workspaceのアカウントに関連付けられている人物かを認証してください。\n**Google アカウントの認証は{settings.friendly_allowed_domains()}のいずれかのアカウントで行う必要があります。**\n{url}",
+            f"{message_prefix}\n**Google アカウントの認証は{settings.friendly_allowed_domains()}のいずれかのアカウントで行う必要があります。**\n{url}",
             ephemeral=True,
         )
     else:
         await interaction.response.send_message(
-            f"認証を開始します！以下のURLにアクセスして、あなたがGoogle Workspaceのアカウントに関連付けられている人物かを認証してください。\n{url}",
+            f"{message_prefix}\n{url}",
             ephemeral=True,
         )
 
