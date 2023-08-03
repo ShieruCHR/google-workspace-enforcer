@@ -134,7 +134,10 @@ class PublicBotCog(commands.Cog):
 
     @commands.command("help")
     async def help_command(self, ctx: commands.Context):
-        await ctx.send(f"お困りですか？サポートサーバーにてお問い合わせください！\n" + os.getenv("SUPPORT_LINK"))
+        await ctx.send(
+            f"お困りですか？サポートサーバーにてお問い合わせください！\n" + os.getenv("SUPPORT_LINK"),
+            ephemeral=True,
+        )
 
 
 async def setup(bot: commands.Bot) -> None:
