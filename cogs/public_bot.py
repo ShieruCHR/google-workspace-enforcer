@@ -26,11 +26,11 @@ class PublicBotCog(commands.Cog):
         return settings
 
     def is_domain_available(self, domain: str):
-        return (
+        return bool(
             re.match(
-                r"^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9](?:\.[a-zA-Z]{2,})+$", domain
+                r"^(?!:\/\/)(?!.*\.\.)[a-zA-Z0-9-]{1,63}\.[a-zA-Z]{2,63}$",
+                domain,
             )
-            is None
         )
 
     @commands.Cog.listener()
@@ -76,13 +76,14 @@ class PublicBotCog(commands.Cog):
         await ctx.send(f"認証ログチャンネルを以下に設定しました: {channel.mention}")
 
     @commands.hybrid_group("domains")
+    @commands.has_guild_permissions(manage_guild=True)
     async def domains_group(self, ctx: commands.Context):
         pass
 
     @domains_group.command("add")
     async def domains_add_command(self, ctx: commands.Context, domain: str):
-        if not self.is_domain_available:
-            await ctx.send(f"ドメイン名が不正です。やり直してください。")
+        if not self.is_domain_available(domain):
+            await ctx.send(f"このドメインは使用できません。")
             return
         session = next(get_session())
         settings = get_settings(session, ctx.guild.id)
@@ -101,8 +102,8 @@ class PublicBotCog(commands.Cog):
 
     @domains_group.command("remove")
     async def domains_remove_command(self, ctx: commands.Context, domain: str):
-        if not self.is_domain_available:
-            await ctx.send(f"ドメイン名が不正です。やり直してください。")
+        if not self.is_domain_available(domain):
+            await ctx.send(f"このドメインは使用できません。")
             return
         session = next(get_session())
         settings = get_settings(session, ctx.guild.id)
