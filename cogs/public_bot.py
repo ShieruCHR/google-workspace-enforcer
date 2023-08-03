@@ -5,6 +5,7 @@ from sqlmodel import Session, select
 from database import get_session
 
 from models import GuildSettings
+from settings_utils import get_settings
 
 
 class PublicBotCog(commands.Cog):
@@ -23,11 +24,6 @@ class PublicBotCog(commands.Cog):
         session.add(settings)
         return settings
 
-    def get_settings(self, session: Session, guild_id: int) -> GuildSettings:
-        return session.exec(
-            select(GuildSettings).where(GuildSettings.guild_id == guild_id)
-        ).first()
-
     @commands.Cog.listener()
     async def on_guild_join(self, guild: discord.Guild):
         # Create settings for guild
@@ -39,7 +35,7 @@ class PublicBotCog(commands.Cog):
     async def on_guild_remove(self, guild: discord.Guild):
         # Delete settings for guild
         session = next(get_session())
-        session.delete(self.get_settings(session, guild.id))
+        session.delete(get_settings(session, guild.id))
         session.commit()
 
     @commands.hybrid_command("create")
@@ -52,7 +48,7 @@ class PublicBotCog(commands.Cog):
     @commands.hybrid_command("role")
     async def set_verification_role(self, ctx: commands.Context, role: discord.Role):
         session = next(get_session())
-        settings = self.get_settings(session, ctx.guild.id)
+        settings = get_settings(session, ctx.guild.id)
         settings.verified_role_id = role.id
         session.commit()
         await ctx.send(f"Verification role set to {role.name}")
@@ -62,7 +58,7 @@ class PublicBotCog(commands.Cog):
         self, ctx: commands.Context, channel: discord.TextChannel
     ):
         session = next(get_session())
-        settings = self.get_settings(session, ctx.guild.id)
+        settings = get_settings(session, ctx.guild.id)
         settings.verification_log_channel_id = channel.id
         session.commit()
         await ctx.send(f"Verification log channel set to {channel.mention}")
@@ -74,7 +70,7 @@ class PublicBotCog(commands.Cog):
     @domains_group.command("add")
     async def domains_add_command(self, ctx: commands.Context, domain: str):
         session = next(get_session())
-        settings = self.get_settings(session, ctx.guild.id)
+        settings = get_settings(session, ctx.guild.id)
         if int(os.getenv("DOMAIN_LIMITS", 3)) < len(settings.allowed_domains):
             await ctx.send(f"Limit exceeded. Remove some domains first.")
             return
@@ -85,7 +81,7 @@ class PublicBotCog(commands.Cog):
     @domains_group.command("remove")
     async def domains_remove_command(self, ctx: commands.Context, domain: str):
         session = next(get_session())
-        settings = self.get_settings(session, ctx.guild.id)
+        settings = get_settings(session, ctx.guild.id)
         settings.remove_allowed_domain(domain)
         session.commit()
         await ctx.send(f"Removed domain {domain}")
@@ -93,7 +89,7 @@ class PublicBotCog(commands.Cog):
     @domains_group.command("list")
     async def domains_list(self, ctx: commands.Context):
         session = next(get_session())
-        settings = self.get_settings(session, ctx.guild.id)
+        settings = get_settings(session, ctx.guild.id)
         embed = discord.Embed(title="Allowed domains")
         embed.description = "\n".join(settings.allowed_domains)
         await ctx.send(embed=embed)

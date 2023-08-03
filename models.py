@@ -22,3 +22,10 @@ class GuildSettings(SQLModel, table=True):
 
     def remove_allowed_domain(self, domain):
         self.set_allowed_domains(*[d for d in self.allowed_domains if d != domain])
+
+    @property
+    def friendly_allowed_domains(self):
+        return ", ".join(self.allowed_domains)
+
+    def is_allowed(self, domain):
+        return domain in self.allowed_domains
