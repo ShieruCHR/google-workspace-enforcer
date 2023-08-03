@@ -123,7 +123,7 @@ async def validate(state: str):
         await channel.guild.get_member(user.id).add_roles(
             role, reason="Verification completed."
         )
-        await channel.send(f"{user.mention}さんの認証が完了しました。ご協力ありがとうございます！")
+        await channel.send(f"{user.mention}さんの認証が完了しました！")
         del processing_states[state]
         return RedirectResponse("/success")
 
