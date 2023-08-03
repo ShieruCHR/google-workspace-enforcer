@@ -6,7 +6,7 @@ from discord.ext import commands
 from discord import Intents
 from discord.ext.commands import Context
 
-from models import RoleView, VerifyView
+from views import RoleView, VerifyView
 import logging
 import settings
 

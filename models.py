@@ -1,42 +1,24 @@
-from typing import Coroutine
-import discord
+from sqlalchemy import Column, String
+from sqlmodel import Field, SQLModel
 
 
-class RoleView(discord.ui.View):
-    """For our support server."""
-
-    def __init__(self):
-        super().__init__(timeout=None)
-
-    @discord.ui.button(
-        label="Remove Role",
-        style=discord.ButtonStyle.danger,
-        custom_id="role_view:remove",
+class GuildSettings(SQLModel, table=True):
+    guild_id: str = Field(default=None, primary_key=True)
+    allowed_domains_str: str = Field(
+        sa_column=Column("allowed_domains", String, default=None)
     )
-    async def remove_role(
-        self, interaction: discord.Interaction, button: discord.ui.Button
-    ):
-        role = interaction.guild.get_role(1134971094709850185)
-        print(role)
-        await interaction.user.remove_roles(role)
-        await interaction.response.send_message(
-            "Role Removed!", ephemeral=True, delete_after=3
-        )
+    verified_role_id: str = Field(default=None)
+    verification_log_channel_id: str = Field(default=None)
 
+    @property
+    def allowed_domains(self):
+        return set(self.allowed_domains_str.split(","))
 
-class VerifyView(discord.ui.View):
-    callable: Coroutine
+    def set_allowed_domains(self, *domains):
+        self.allowed_domains_str = ",".join(set(domains))
 
-    def __init__(self, callable):
-        super().__init__(timeout=None)
-        self.callable = callable
+    def add_allowed_domain(self, domain):
+        self.set_allowed_domains(*((*self.allowed_domains, domain)))
 
-    @discord.ui.button(
-        label="認証を始める",
-        style=discord.ButtonStyle.primary,
-        custom_id="verify_view:start",
-    )
-    async def start_verify(
-        self, interaction: discord.Interaction, button: discord.ui.Button
-    ):
-        await self.callable(interaction)
+    def remove_allowed_domain(self, domain):
+        self.set_allowed_domains(*[d for d in self.allowed_domains if d != domain])
