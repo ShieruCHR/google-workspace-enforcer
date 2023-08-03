@@ -38,7 +38,7 @@ async def start_verification(interaction: discord.Interaction):
     )
     if settings.allowed_domains:
         await interaction.response.send_message(
-            f"{message_prefix}\n**Google アカウントの認証は{settings.friendly_allowed_domains}のいずれかのアカウントで行う必要があります。**\n{url}",
+            f"{message_prefix}\n**Google アカウントの認証は{settings.friendly_allowed_domains}{'のいずれか' if len(settings.allowed_domains) > 1 else ''}のアカウントで行う必要があります。**\n{url}",
             ephemeral=True,
         )
     else:
