@@ -28,7 +28,7 @@ class PublicBotCog(commands.Cog):
     def is_domain_available(self, domain: str):
         return bool(
             re.match(
-                r"^(?!:\/\/)(?!.*\.\.)[a-zA-Z0-9-]{1,63}\.[a-zA-Z]{2,63}$",
+                r"^([a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]*\.)+[a-zA-Z]{2,}$",
                 domain,
             )
         )
