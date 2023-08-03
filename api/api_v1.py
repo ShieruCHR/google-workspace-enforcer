@@ -94,7 +94,6 @@ async def google_callback(code: str, state: str):
     google_token = requests.post(
         "https://oauth2.googleapis.com/token", data=google_user_data
     )
-    print(google_token.text)
     google_token.raise_for_status()
     google_user = requests.get(
         "https://www.googleapis.com/oauth2/v2/userinfo?access_token="
