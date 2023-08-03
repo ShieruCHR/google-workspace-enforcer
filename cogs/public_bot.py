@@ -1,4 +1,5 @@
 import os
+import re
 import discord
 from discord.ext import commands
 from sqlmodel import Session, select
@@ -23,6 +24,14 @@ class PublicBotCog(commands.Cog):
         )
         session.add(settings)
         return settings
+
+    def is_domain_available(self, domain: str):
+        return (
+            re.match(
+                r"^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9](?:\.[a-zA-Z]{2,})+$", domain
+            )
+            is None
+        )
 
     @commands.Cog.listener()
     async def on_guild_join(self, guild: discord.Guild):
@@ -51,7 +60,10 @@ class PublicBotCog(commands.Cog):
         settings = get_settings(session, ctx.guild.id)
         settings.verified_role_id = role.id
         session.commit()
-        await ctx.send(f"Verification role set to {role.name}")
+        await ctx.send(
+            f"「認証済み」ロールを以下に設定しました: {role.mention}",
+            allowed_mentions=discord.AllowedMentions.none(),
+        )
 
     @commands.hybrid_command("channel")
     async def set_verification_log_channel(
@@ -61,7 +73,7 @@ class PublicBotCog(commands.Cog):
         settings = get_settings(session, ctx.guild.id)
         settings.verification_log_channel_id = channel.id
         session.commit()
-        await ctx.send(f"Verification log channel set to {channel.mention}")
+        await ctx.send(f"認証ログチャンネルを以下に設定しました: {channel.mention}")
 
     @commands.hybrid_group("domains")
     async def domains_group(self, ctx: commands.Context):
@@ -69,28 +81,53 @@ class PublicBotCog(commands.Cog):
 
     @domains_group.command("add")
     async def domains_add_command(self, ctx: commands.Context, domain: str):
+        if not self.is_domain_available:
+            await ctx.send(f"ドメイン名が不正です。やり直してください。")
+            return
         session = next(get_session())
         settings = get_settings(session, ctx.guild.id)
-        if int(os.getenv("DOMAIN_LIMITS", 3)) < len(settings.allowed_domains):
-            await ctx.send(f"Limit exceeded. Remove some domains first.")
+        domain_limit = int(os.getenv("DOMAIN_LIMITS", 3))
+        if domain_limit <= len(settings.allowed_domains):
+            await ctx.send(
+                f"公開Botでは、認証できるドメインの数は{domain_limit}個までに制限されています。\n既にあるドメインを削除するか、Botの管理者に直接問い合わせてください: {os.getenv('SUPPORT_LINK')}"
+            )
+            return
+        if domain in settings.allowed_domains:
+            await ctx.send(f"既にこのドメインは追加されています: `{domain}`")
             return
         settings.add_allowed_domain(domain)
         session.commit()
-        await ctx.send(f"Added domain {domain}")
+        await ctx.send(f"認証できるドメインに以下を追加しました: `{domain}`")
 
     @domains_group.command("remove")
     async def domains_remove_command(self, ctx: commands.Context, domain: str):
+        if not self.is_domain_available:
+            await ctx.send(f"ドメイン名が不正です。やり直してください。")
+            return
         session = next(get_session())
         settings = get_settings(session, ctx.guild.id)
+        if domain not in settings.allowed_domains:
+            await ctx.send(f"以下は認証できるドメインではありません: `{domain}`")
+            return
         settings.remove_allowed_domain(domain)
         session.commit()
-        await ctx.send(f"Removed domain {domain}")
+        await ctx.send(f"認証できるドメインから以下を削除しました: `{domain}`")
+
+    @domains_group.command("clear")
+    async def domains_clear_command(self, ctx: commands.Context):
+        session = next(get_session())
+        settings = get_settings(session, ctx.guild.id)
+        settings.allowed_domains_str = ""
+        session.commit()
+        await ctx.send(f"認証できるドメインをクリアしました。")
 
     @domains_group.command("list")
     async def domains_list(self, ctx: commands.Context):
         session = next(get_session())
         settings = get_settings(session, ctx.guild.id)
-        embed = discord.Embed(title="Allowed domains")
+        embed = discord.Embed(
+            title=f"認証できるドメイン一覧 ({len(settings.allowed_domains)} / {os.getenv('DOMAIN_LIMITS')})"
+        )
         embed.description = "\n".join(settings.allowed_domains)
         await ctx.send(embed=embed)
 
