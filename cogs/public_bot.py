@@ -47,13 +47,6 @@ class PublicBotCog(commands.Cog):
         session.delete(get_settings(session, guild.id))
         session.commit()
 
-    @commands.hybrid_command("create")
-    @commands.is_owner()
-    async def create_settings_command(self, ctx: commands.Context):
-        session = next(get_session())
-        self.create_settings(session, ctx.guild.id)
-        session.commit()
-
     @commands.hybrid_command("role")
     async def set_verification_role(self, ctx: commands.Context, role: discord.Role):
         if role.position >= ctx.author.top_role.position:
