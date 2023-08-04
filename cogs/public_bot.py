@@ -56,6 +56,14 @@ class PublicBotCog(commands.Cog):
 
     @commands.hybrid_command("role")
     async def set_verification_role(self, ctx: commands.Context, role: discord.Role):
+        if role.position >= ctx.author.top_role.position:
+            await ctx.send(f"このロールは、あなたが現在付与されている最も高いロールよりも上位に位置しているため設定できません。")
+            return
+        if role.position >= ctx.me.top_role.position:
+            await ctx.send(
+                f"このロールは、このBotが現在付与されている最も高いロールよりも上位に位置しているため設定できません、\nロールの順序を変更してください。"
+            )
+            return
         session = next(get_session())
         settings = get_settings(session, ctx.guild.id)
         settings.verified_role_id = role.id
