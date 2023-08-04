@@ -50,7 +50,10 @@ class PublicBotCog(commands.Cog):
     @commands.hybrid_command("role", help="認証が完了した際にユーザーに付与するロール（役職）を設定します。")
     @commands.has_guild_permissions(manage_guild=True)
     async def set_verification_role(self, ctx: commands.Context, role: discord.Role):
-        if role.position >= ctx.author.top_role.position:
+        if (
+            role.position >= ctx.author.top_role.position
+            and ctx.author != ctx.guild.owner
+        ):
             await ctx.send(f"このロールは、あなたが現在付与されている最も高いロールよりも上位に位置しているため設定できません。")
             return
         if role.position >= ctx.me.top_role.position:
