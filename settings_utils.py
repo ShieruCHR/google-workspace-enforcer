@@ -3,7 +3,6 @@ import os
 from dotenv import load_dotenv
 from sqlmodel import Session, select
 
-from database import get_session
 from models import GuildSettings
 
 load_dotenv()

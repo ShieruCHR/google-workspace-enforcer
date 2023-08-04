@@ -2,7 +2,7 @@ import os
 import re
 import discord
 from discord.ext import commands
-from sqlmodel import Session, select
+from sqlmodel import Session
 from database import get_session
 
 from models import GuildSettings
