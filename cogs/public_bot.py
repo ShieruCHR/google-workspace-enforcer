@@ -47,7 +47,7 @@ class PublicBotCog(commands.Cog):
         session.delete(get_settings(session, guild.id))
         session.commit()
 
-    @commands.hybrid_command("role")
+    @commands.hybrid_command("role", help="認証が完了した際にユーザーに付与するロール（役職）を設定します。")
     @commands.has_guild_permissions(manage_guild=True)
     async def set_verification_role(self, ctx: commands.Context, role: discord.Role):
         if role.position >= ctx.author.top_role.position:
@@ -67,7 +67,7 @@ class PublicBotCog(commands.Cog):
             allowed_mentions=discord.AllowedMentions.none(),
         )
 
-    @commands.hybrid_command("channel")
+    @commands.hybrid_command("channel", help="認証が完了した際にログを送信するチャンネルを設定します。")
     @commands.has_guild_permissions(manage_guild=True)
     async def set_verification_log_channel(
         self, ctx: commands.Context, channel: discord.TextChannel
@@ -83,7 +83,7 @@ class PublicBotCog(commands.Cog):
     async def domains_group(self, ctx: commands.Context):
         pass
 
-    @domains_group.command("add")
+    @domains_group.command("add", help="認証できるドメインを追加します。")
     async def domains_add_command(self, ctx: commands.Context, domain: str):
         if not self.is_domain_available(domain):
             await ctx.send(f"このドメインは使用できません。")
@@ -103,7 +103,7 @@ class PublicBotCog(commands.Cog):
         session.commit()
         await ctx.send(f"認証できるドメインに以下を追加しました: `{domain}`")
 
-    @domains_group.command("remove")
+    @domains_group.command("remove", help="認証できるドメインを削除します。")
     async def domains_remove_command(self, ctx: commands.Context, domain: str):
         if not self.is_domain_available(domain):
             await ctx.send(f"このドメインは使用できません。")
@@ -117,7 +117,7 @@ class PublicBotCog(commands.Cog):
         session.commit()
         await ctx.send(f"認証できるドメインから以下を削除しました: `{domain}`")
 
-    @domains_group.command("clear")
+    @domains_group.command("clear", help="認証できるドメインをすべて削除（クリア）します。")
     async def domains_clear_command(self, ctx: commands.Context):
         session = next(get_session())
         settings = get_settings(session, ctx.guild.id)
@@ -125,7 +125,7 @@ class PublicBotCog(commands.Cog):
         session.commit()
         await ctx.send(f"認証できるドメインをクリアしました。")
 
-    @domains_group.command("list")
+    @domains_group.command("list", help="認証できるドメインの一覧を表示します。")
     async def domains_list(self, ctx: commands.Context):
         session = next(get_session())
         settings = get_settings(session, ctx.guild.id)
@@ -135,7 +135,7 @@ class PublicBotCog(commands.Cog):
         embed.description = "\n".join(settings.allowed_domains)
         await ctx.send(embed=embed)
 
-    @commands.command("help")
+    @commands.command("help", help="稼働中の公開Botのサポートサーバーへのリンクを表示します。")
     async def help_command(self, ctx: commands.Context):
         await ctx.send(
             f"お困りですか？サポートサーバーにてお問い合わせください！\n" + os.getenv("SUPPORT_LINK"),
