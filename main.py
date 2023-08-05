@@ -19,7 +19,6 @@ def get_bot():
 
 @app.on_event("startup")
 async def startup():
-    database.create_db()
     app.include_router(router_v1, dependencies=[Depends(get_bot)])
     if bool(int(os.getenv("PUBLIC_BOT_FEATURES", "0"))):
         print("Loading extension for public bot...")
