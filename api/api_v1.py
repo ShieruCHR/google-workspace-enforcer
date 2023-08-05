@@ -1,11 +1,13 @@
 import os
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from fastapi.responses import FileResponse, RedirectResponse
 from urllib import parse
 import requests
+from sqlmodel import Session
+from database import get_session
 
 from shared import bot, processing_states
-import settings
+import settings_utils
 
 
 router = APIRouter()
@@ -110,16 +112,21 @@ async def get_session_id(session_id: str):
 
 
 @router.get("/validate")
-async def validate(state: str):
+async def validate(state: str, session: Session = Depends(get_session)):
     if state not in processing_states:
         return "There's no data for this state. Please try again!"
 
+    settings = settings_utils.get_settings(
+        session, processing_states[state]["guild_id"]
+    )
     if processing_states[state]["google"] and processing_states[state]["discord"]:
-        if not settings.is_allowed(processing_states[state]["google"]["organization"]):
+        if not settings.is_allowed(
+            processing_states[state]["google"]["organization"],
+        ):
             return "This domain is not allowed."
-        channel = bot.get_channel(int(os.getenv("VERIFICATION_LOG_CHANNEL_ID")))
+        channel = bot.get_channel(int(settings.verification_log_channel_id))
         user = bot.get_user(int(processing_states[state]["discord"]["id"]))
-        role = channel.guild.get_role(int(os.getenv("VERIFIED_ROLE_ID")))
+        role = channel.guild.get_role(int(settings.verified_role_id))
         await channel.guild.get_member(user.id).add_roles(
             role, reason="Verification completed."
         )
