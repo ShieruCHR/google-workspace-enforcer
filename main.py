@@ -6,7 +6,6 @@ from fastapi import Depends, FastAPI
 import uvicorn
 from api.api_v1 import router as router_v1
 from shared import bot
-import database
 
 load_dotenv()
 
