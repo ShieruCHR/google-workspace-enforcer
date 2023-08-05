@@ -93,7 +93,7 @@ class PublicBotCog(commands.Cog):
         session.commit()
         await ctx.send(f"認証ログチャンネルを以下に設定しました: {channel.mention}")
 
-    @commands.hybrid_group("domains")
+    @commands.hybrid_group("domains", help="認証可能なドメインを構成します。サブコマンドを参照してください。")
     @discord.app_commands.default_permissions(manage_guild=True)
     @discord.app_commands.guild_only()
     async def domains_group(self, ctx: commands.Context):
