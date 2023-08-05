@@ -63,6 +63,7 @@ async def on_ready():
     help="認証用のパネルを設置します。チャンネルが指定されればそこへ、指定されなければ実行したチャンネルに送信されます。",
 )
 @discord.app_commands.default_permissions(manage_messages=True)
+@discord.app_commands.guild_only()
 async def create_panel(ctx: Context, channel: discord.TextChannel = None):
     settings = get_settings(next(get_session()), ctx.guild.id)
     embed = discord.Embed(title="Google Workspaceの認証")
@@ -76,5 +77,6 @@ async def create_panel(ctx: Context, channel: discord.TextChannel = None):
 
 
 @bot.hybrid_command("verify", help="認証用のURLを発行し、認証を開始します。")
+@discord.app_commands.guild_only()
 async def verify(ctx: Context):
     await start_verification(ctx.interaction)

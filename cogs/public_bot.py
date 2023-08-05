@@ -52,6 +52,7 @@ class PublicBotCog(commands.Cog):
         help="認証が完了した際にユーザーに付与するロール（役職）を設定します。",
     )
     @discord.app_commands.default_permissions(manage_roles=True)
+    @discord.app_commands.guild_only()
     async def set_verification_role(
         self,
         ctx: commands.Context,
@@ -82,6 +83,7 @@ class PublicBotCog(commands.Cog):
         help="認証が完了した際にログを送信するチャンネルを設定します。",
     )
     @discord.app_commands.default_permissions(manage_channels=True)
+    @discord.app_commands.guild_only()
     async def set_verification_log_channel(
         self, ctx: commands.Context, channel: discord.TextChannel
     ):
@@ -93,6 +95,7 @@ class PublicBotCog(commands.Cog):
 
     @commands.hybrid_group("domains")
     @discord.app_commands.default_permissions(manage_guild=True)
+    @discord.app_commands.guild_only()
     async def domains_group(self, ctx: commands.Context):
         pass
 
@@ -148,7 +151,7 @@ class PublicBotCog(commands.Cog):
         embed.description = "\n".join(settings.allowed_domains)
         await ctx.send(embed=embed)
 
-    @commands.command("help", help="稼働中の公開Botのサポートサーバーへのリンクを表示します。")
+    @commands.hybrid_command("help", help="稼働中の公開Botのサポートサーバーへのリンクを表示します。")
     async def help_command(self, ctx: commands.Context):
         await ctx.send(
             f"お困りですか？サポートサーバーにてお問い合わせください！\n" + os.getenv("SUPPORT_LINK"),
