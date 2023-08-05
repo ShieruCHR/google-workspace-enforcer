@@ -47,9 +47,16 @@ class PublicBotCog(commands.Cog):
         session.delete(get_settings(session, guild.id))
         session.commit()
 
-    @commands.hybrid_command("role", help="認証が完了した際にユーザーに付与するロール（役職）を設定します。")
-    @commands.has_guild_permissions(manage_guild=True)
-    async def set_verification_role(self, ctx: commands.Context, role: discord.Role):
+    @commands.hybrid_command(
+        "role",
+        help="認証が完了した際にユーザーに付与するロール（役職）を設定します。",
+    )
+    @discord.app_commands.default_permissions(manage_roles=True)
+    async def set_verification_role(
+        self,
+        ctx: commands.Context,
+        role: discord.Role,
+    ):
         if (
             role.position >= ctx.author.top_role.position
             and ctx.author != ctx.guild.owner
@@ -70,8 +77,11 @@ class PublicBotCog(commands.Cog):
             allowed_mentions=discord.AllowedMentions.none(),
         )
 
-    @commands.hybrid_command("channel", help="認証が完了した際にログを送信するチャンネルを設定します。")
-    @commands.has_guild_permissions(manage_guild=True)
+    @commands.hybrid_command(
+        "channel",
+        help="認証が完了した際にログを送信するチャンネルを設定します。",
+    )
+    @discord.app_commands.default_permissions(manage_channels=True)
     async def set_verification_log_channel(
         self, ctx: commands.Context, channel: discord.TextChannel
     ):
@@ -82,7 +92,7 @@ class PublicBotCog(commands.Cog):
         await ctx.send(f"認証ログチャンネルを以下に設定しました: {channel.mention}")
 
     @commands.hybrid_group("domains")
-    @commands.has_guild_permissions(manage_guild=True)
+    @discord.app_commands.default_permissions(manage_guild=True)
     async def domains_group(self, ctx: commands.Context):
         pass
 
