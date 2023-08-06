@@ -80,3 +80,55 @@ async def create_panel(ctx: Context, channel: discord.TextChannel = None):
 @discord.app_commands.guild_only()
 async def verify(ctx: Context):
     await start_verification(ctx.interaction)
+
+
+@bot.hybrid_command("settings", help="設定を確認します。")
+@discord.app_commands.default_permissions(manage_guild=True)
+@discord.app_commands.guild_only()
+async def validate_settings(ctx: Context):
+    embed = discord.Embed(title="Settings Validator")
+    embed.set_footer(
+        text="この機能は簡易チェックです。一度認証を試してみることをおすすめします！",
+        icon_url=ctx.bot.user.avatar.url if ctx.bot.user.avatar else None,
+    )
+    settings = get_settings(next(get_session()), ctx.guild.id)
+    result = settings.validate_settings(ctx.bot)
+
+    def bool_to_str(b: bool) -> str:
+        return ":white_check_mark: 利用可能" if b else ":no_entry_sign: 利用不可"
+
+    unavailable_role_reasons = "\n".join(
+        [f"- {tag.value}" for tag in result.verified_role_reasons]
+    )
+    unavailable_channel_reasons = "\n".join(
+        [f"- {tag.value}" for tag in result.log_channel_reasons]
+    )
+    if result:
+        embed.description = f"""
+        __**役職の確認**__
+        「認証済み」の役職: {result.verified_role.mention if result.verified_role else 'Invalid'}
+        役職の利用可能ステータス: **{bool_to_str(result.verified_role_grantable)}**
+        理由:
+          {unavailable_role_reasons}
+
+        -------
+
+        __**ログチャンネルの確認**__
+        認証ログチャンネル: {result.log_channel.mention if result.log_channel else 'Invalid'}
+        チャンネルの利用可能ステータス: **{bool_to_str(result.log_channel_sendable)}**
+        理由:
+          {unavailable_channel_reasons}
+
+        -------
+
+        __**ドメイン**__
+        認証可能なドメイン: {settings.friendly_allowed_domains}
+        """
+    else:
+        embed.description = "Failed to validate settings. Please try again later."
+    await ctx.send(
+        "認証は利用可能です。正しく構成されています！"
+        if result.is_valid
+        else "設定の一部が間違っているため、認証できません。詳細は以下を確認してください:",
+        embed=embed,
+    )
