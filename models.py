@@ -37,10 +37,19 @@ class GuildSettings(SQLModel, table=True):
 
     def validate_settings(self, bot: discord.Client):
         result = SettingsValidationResult()
-        log_channel = bot.get_channel(int(self.verification_log_channel_id))
-        verified_role = bot.get_guild(int(self.guild_id)).get_role(
-            int(self.verified_role_id)
-        )
+        log_channel_id = self.verification_log_channel_id
+        if log_channel_id:
+            log_channel = bot.get_channel(int(log_channel_id))
+        else:
+            log_channel = None
+
+        verified_role_id = self.verified_role_id
+        if verified_role_id:
+            verified_role = bot.get_guild(int(self.guild_id)).get_role(
+                int(verified_role_id)
+            )
+        else:
+            verified_role = None
         guild = bot.get_guild(int(self.guild_id))
 
         # Log channel availability check
