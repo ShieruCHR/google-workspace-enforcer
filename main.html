@@ -380,7 +380,7 @@
                     setText("guild-name", data["guild_name"]);
                 }
 
-                if (data["domain"]) {
+                if (data["domain"].length > 0) {
                     setHidden("domain", false);
                     setText("domain-text", data["domain"].join(", "));
                 }
@@ -428,7 +428,7 @@
                         setColor("google-auth-mismatch", "text", "success");
                         validation_completed = true;
                     }
-                    if (data["domain"]) {
+                    if (data["domain"].length > 0) {
                         if (data["domain"].includes(google["organization"])) {
                             // Passed domain validation
                             _validationPassed();
@@ -450,7 +450,8 @@
                         }
                         setHidden("google-auth-mismatch", false);
                     } else {
-                        // Domain validation is not needed
+                        // Domain validation is not needed]
+                        _validationPassed();
                     }
 
                     if (validation_completed) {

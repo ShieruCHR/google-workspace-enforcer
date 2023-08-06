@@ -15,7 +15,7 @@ class GuildSettings(SQLModel, table=True):
         if self.allowed_domains_str:
             return self.allowed_domains_str.split(",")
         else:
-            return ""
+            return []
 
     def set_allowed_domains(self, *domains):
         self.allowed_domains_str = ",".join(set(domains))
@@ -31,4 +31,4 @@ class GuildSettings(SQLModel, table=True):
         return ", ".join(self.allowed_domains)
 
     def is_allowed(self, domain):
-        return domain in self.allowed_domains
+        return domain in self.allowed_domains if self.allowed_domains else True
