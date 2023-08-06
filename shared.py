@@ -27,6 +27,13 @@ logger.addHandler(stream_handler)
 async def start_verification(interaction: discord.Interaction):
     state = str(uuid4())
     settings = get_settings(next(get_session()), interaction.guild.id)
+    if not settings.validate_settings(interaction.client).is_valid:
+        message_prefix = ""
+        await interaction.response.send_message(
+            f"一部の設定が間違っているため、認証を開始できません。\nサーバーの管理者にお問い合わせください。\n\nもしあなたがサーバーの管理者なら、`/settings`を実行して設定を確認してください。",
+            ephemeral=True,
+        )
+        return
     processing_states[state] = {
         "guild_name": interaction.guild.name,
         "domain": settings.allowed_domains,
