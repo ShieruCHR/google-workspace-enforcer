@@ -95,7 +95,7 @@ async def verify(ctx: Context):
 async def validate_settings(ctx: Context):
     embed = discord.Embed(title="Settings Validator")
     embed.set_footer(
-        text="この機能は簡易チェックです。一度認証を試してみることをおすすめします！",
+        text="この機能は簡易チェックを目的としています。一度認証を試してみることをおすすめします！",
         icon_url=ctx.bot.user.avatar.url if ctx.bot.user.avatar else None,
     )
     settings = get_settings(next(get_session()), ctx.guild.id)
