@@ -2,12 +2,11 @@ import asyncio
 import os
 
 from dotenv import load_dotenv
-from fastapi import Depends, FastAPI, HTTPException, Request
+from fastapi import Depends, FastAPI, HTTPException
 from fastapi.responses import FileResponse
 import uvicorn
 from api.api_v1 import router as router_v1
 from shared import bot
-from starlette.exceptions import HTTPException as StarletteHTTPException
 
 load_dotenv()
 
