@@ -108,6 +108,8 @@ async def google_callback(code: str, state: str):
 
 @router.get("/session/{session_id}")
 async def get_session_id(session_id: str):
+    if session_id not in processing_states:
+        return "There's no data for this state. Please try again!"
     return processing_states[session_id]
 
 
