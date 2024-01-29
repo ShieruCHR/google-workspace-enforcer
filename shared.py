@@ -74,7 +74,7 @@ async def on_ready():
 async def create_panel(ctx: Context, channel: discord.TextChannel = None):
     settings = get_settings(next(get_session()), ctx.guild.id)
     embed = discord.Embed(title="Google Workspaceの認証")
-    embed.description = f"このサーバーに参加するには、あなたが{settings.friendly_allowed_domains}{'のいずれか' if len(settings.allowed_domains) > 1 else ''}に所属するメンバーかを認証する必要があります。\n下のボタンを押すか、`/verify`を実行して認証を開始してください！"
+    embed.description = f"このBotは、あなたが{settings.friendly_allowed_domains}{'のいずれか' if len(settings.allowed_domains) > 1 else ''}に所属するメンバーかどうかを確認し、専用のロール（役職）を付与します。\n下のボタンを押すか、`/verify`を実行して認証を開始してください！"
     if channel is None:
         channel = ctx.channel
     await channel.send(view=VerifyView(start_verification), embed=embed)
